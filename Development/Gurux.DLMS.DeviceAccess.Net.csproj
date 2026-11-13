@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <RootNamespace>Gurux.DLMS.DeviceAccess</RootNamespace>
+        <AssemblyName>Gurux.DLMS.DeviceAccess</AssemblyName>
+        <Company>Gurux Ltd</Company>
+        <Authors>Gurux Ltd</Authors>
+        <Copyright>Copyright (c) 1998-2026 Gurux Ltd. All rights reserved.</Copyright>
+        <PackageProjectUrl>https://www.gurux.fi</PackageProjectUrl>
+        <Description>Shared library for DLMS/COSEM meter communication, supporting connection management, data reading and writing, method invocation, certificate management, and firmware updates.</Description>
+        <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
+        <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <TargetFrameworks>net11.0;net10.0;net9.0</TargetFrameworks>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Nullable>enable</Nullable>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <NeutralLanguage>en</NeutralLanguage>
+        <RepositoryUrl>https://github.com/gurux/Gurux.DLMS.DeviceAccess.Net</RepositoryUrl>
+        <PackageTags>DLMS;COSEM;AMR;AMI;IoT;Metering</PackageTags>
+        <PackageId>Gurux.DLMS.DeviceAccess</PackageId>
+        <PackageIcon>Gurux.DLMS.DeviceAccess.png</PackageIcon>
+        <PackageLicenseFile>LICENSES/LicenseRef-Gurux-Commercial.txt</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+    <PropertyGroup>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="Tests\**" />
+        <!-- Resource generation adds this file to Compile; exclude the SDK default item. -->
+        <Compile Remove="Properties\Resources.Designer.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Properties\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <StronglyTypedLanguage>C#</StronglyTypedLanguage>
+            <StronglyTypedClassName>Resources</StronglyTypedClassName>
+            <StronglyTypedNamespace>Gurux.DLMS.DeviceAccess.Properties</StronglyTypedNamespace>
+            <StronglyTypedFileName>$(IntermediateOutputPath)Resources.Designer.cs</StronglyTypedFileName>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Explicit items also participate in the outer multi-targeting pack build. -->
+        <None Remove="Gurux.DLMS.DeviceAccess.png;README.md" />
+        <None Include="Gurux.DLMS.DeviceAccess.png" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
+        <None Include="..\LICENSE" Pack="true" PackagePath="\" />
+        <None Include="..\LICENSES\LicenseRef-Gurux-Commercial.txt" Pack="true" PackagePath="LICENSES\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Gurux.Common" Version="9.0.2611.1302" />
+        <PackageReference Include="Gurux.DLMS" Version="9.0.2609.2201" />
+    </ItemGroup>
+</Project>

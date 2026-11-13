@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="AareReplyParsed" xml:space="preserve">
+    <value>The AARE reply was parsed successfully.</value>
+  </data>
+  <data name="ActionRequestMissing" xml:space="preserve">
+    <value>The method request factory returned no request frames.</value>
+  </data>
+  <data name="AssociationCacheLoadFailed" xml:space="preserve">
+    <value>The association cache could not be loaded ({0}).</value>
+    <comment>{0}: failure details supplied by the exception.</comment>
+  </data>
+  <data name="AttributeNotReadable" xml:space="preserve">
+    <value>Attribute {2} of {0} object {1} cannot be read.</value>
+    <comment>{0}: COSEM class name; {1}: object identifier; {2}: attribute index.</comment>
+  </data>
+  <data name="AttributeReadFailed" xml:space="preserve">
+    <value>Reading attribute {2} of {0} object {1} failed ({3}).</value>
+    <comment>{0}: COSEM class name; {1}: object identifier; {2}: attribute index; {3}: failure details.</comment>
+  </data>
+  <data name="AttributeValue" xml:space="preserve">
+    <value>Attribute {0} has the value {1}.</value>
+    <comment>{0}: attribute index; {1}: formatted attribute value.</comment>
+  </data>
+  <data name="ConnectionRequired" xml:space="preserve">
+    <value>Connect to the meter before performing this operation.</value>
+  </data>
+  <data name="DeviceReplyTimeout" xml:space="preserve">
+    <value>The meter did not return an IEC 62056-21 identification response within the configured timeout.</value>
+  </data>
+  <data name="FirmwareImageEmpty" xml:space="preserve">
+    <value>The firmware image is empty.</value>
+  </data>
+  <data name="FirmwareStatusFailed" xml:space="preserve">
+    <value>The meter reported firmware update failure status {0}.</value>
+    <comment>{0}: failed protocol image-transfer status identifier.</comment>
+  </data>
+  <data name="FirmwareStatusTimeout" xml:space="preserve">
+    <value>The meter did not reach firmware status {0} before the timeout.</value>
+    <comment>{0}: expected protocol image-transfer status identifier.</comment>
+  </data>
+  <data name="FirmwareVerificationDisconnected" xml:space="preserve">
+    <value>The meter disconnected during firmware verification.</value>
+  </data>
+  <data name="FirstProfileRowReadFailed" xml:space="preserve">
+    <value>Reading the first profile row failed ({0}).</value>
+    <comment>{0}: failure details supplied by the exception.</comment>
+  </data>
+  <data name="FrameSizeExceeded" xml:space="preserve">
+    <value>The received DLMS frame exceeds the 16 MiB limit.</value>
+  </data>
+  <data name="HighAuthenticationRequired" xml:space="preserve">
+    <value>High-level authentication is required to generate certificate keys.</value>
+  </data>
+  <data name="ImageBlocksIncomplete" xml:space="preserve">
+    <value>Some firmware blocks remain unconfirmed after all retransmission attempts.</value>
+  </data>
+  <data name="ImageIdentifierRequired" xml:space="preserve">
+    <value>A nonempty firmware image identifier is required.</value>
+  </data>
+  <data name="ImageTransferDisabled" xml:space="preserve">
+    <value>Image transfer is disabled on the meter.</value>
+  </data>
+  <data name="ImageVerificationRequired" xml:space="preserve">
+    <value>The meter must confirm successful firmware verification before activation.</value>
+  </data>
+  <data name="InvalidDateRange" xml:space="preserve">
+    <value>The end of the date range must be on or after its start.</value>
+  </data>
+  <data name="InvalidImageBlockSize" xml:space="preserve">
+    <value>The meter returned an invalid image block size.</value>
+  </data>
+  <data name="InvalidOpticalResponse" xml:space="preserve">
+    <value>The meter returned an invalid IEC 62056-21 identification response.</value>
+  </data>
+  <data name="InvalidServerCertificate" xml:space="preserve">
+    <value>The certificate exported by the meter does not match the imported certificate.</value>
+    <comment>Reported when a certificate exported by entity or serial number differs from the certificate previously imported; this is not a certificate-chain validation error.</comment>
+  </data>
+  <data name="InvocationCounterValue" xml:space="preserve">
+    <value>The invocation counter is {0}.</value>
+    <comment>{0}: numeric invocation counter.</comment>
+  </data>
+  <data name="LastDayProfileReadFailed" xml:space="preserve">
+    <value>Reading profile rows from the start of today onward failed ({0}).</value>
+    <comment>{0}: failure details supplied by the exception. The requested range begins at local midnight today and continues through the maximum supported date.</comment>
+  </data>
+  <data name="MeterResponseTimeout" xml:space="preserve">
+    <value>No complete meter response was received within the configured timeout.</value>
+  </data>
+  <data name="MeterTransportClosed" xml:space="preserve">
+    <value>The meter transport is closed.</value>
+  </data>
+  <data name="MethodAccessDenied" xml:space="preserve">
+    <value>The association does not permit invoking {0}, index {1}.</value>
+    <comment>{0}: COSEM logical name; {1}: method index.</comment>
+  </data>
+  <data name="ModeECallbackRequired" xml:space="preserve">
+    <value>Configure OnModeE before using the built-in Mode E optical initialization.</value>
+    <comment>OnModeE is a callback property name and Mode E is a protocol identifier; preserve both identifiers.</comment>
+  </data>
+  <data name="OperationDeadlineExceeded" xml:space="preserve">
+    <value>The operation deadline was exceeded.</value>
+  </data>
+  <data name="OpticalBaudRate" xml:space="preserve">
+    <value>{0:T}: The negotiated Mode E baud rate is {1}.</value>
+    <comment>{0}: local timestamp; {1}: negotiated baud rate. Keep the :T time format.</comment>
+  </data>
+  <data name="ParsingAareReply" xml:space="preserve">
+    <value>The reader is parsing the AARE response: {0}.</value>
+    <comment>{0}: protocol reply details. AARE is a protocol identifier.</comment>
+  </data>
+  <data name="ParsingUaReply" xml:space="preserve">
+    <value>The reader is parsing the UA response: {0}.</value>
+    <comment>{0}: protocol reply details. UA is a protocol identifier.</comment>
+  </data>
+  <data name="ProfileEntries" xml:space="preserve">
+    <value>The profile contains {0} entries and has capacity for {1}.</value>
+    <comment>{0}: entries in use; {1}: profile capacity.</comment>
+  </data>
+  <data name="ReadAccessDenied" xml:space="preserve">
+    <value>The association does not permit reading {0}, index {1}.</value>
+    <comment>{0}: COSEM logical name; {1}: attribute index.</comment>
+  </data>
+  <data name="ReadResponseCountMismatch" xml:space="preserve">
+    <value>The number of returned attribute values does not match the number requested.</value>
+  </data>
+  <data name="ReadingObject" xml:space="preserve">
+    <value>The reader is reading {0} object {1} ({2}).</value>
+    <comment>{0}: COSEM class name; {1}: object identifier; {2}: object description. Technical identifiers must remain unchanged.</comment>
+  </data>
+  <data name="ReadingScalersAndUnits" xml:space="preserve">
+    <value>The reader is reading the meter&apos;s register scalers and units.</value>
+  </data>
+  <data name="ReceivedData" xml:space="preserve">
+    <value>The reader received data: {0}.</value>
+    <comment>{0}: received protocol data.</comment>
+  </data>
+  <data name="ReceivedIecData" xml:space="preserve">
+    <value>The reader received IEC 62056-21 data: {0}.</value>
+    <comment>{0}: received IEC protocol data.</comment>
+  </data>
+  <data name="ReleaseRejected" xml:space="preserve">
+    <value>The release request was rejected ({0}).</value>
+    <comment>{0}: rejection details supplied by the exception.</comment>
+  </data>
+  <data name="SendingAarqRequest" xml:space="preserve">
+    <value>The reader is sending an AARQ request: {0}.</value>
+    <comment>{0}: protocol request bytes in hexadecimal. AARQ is a protocol identifier.</comment>
+  </data>
+  <data name="SendingIecData" xml:space="preserve">
+    <value>The reader is sending IEC 62056-21 data: {0}.</value>
+    <comment>{0}: transmitted IEC protocol data.</comment>
+  </data>
+  <data name="SendingSnrmRequest" xml:space="preserve">
+    <value>The reader is sending an SNRM request: {0}.</value>
+    <comment>{0}: protocol request bytes in hexadecimal. SNRM is a protocol identifier.</comment>
+  </data>
+  <data name="ServerSystemTitleMismatch" xml:space="preserve">
+    <value>The server system title '{0}' does not match the generated certificate request's system title '{1}'.</value>
+    <comment>{0}: server system title in hexadecimal; {1}: certificate request system title in hexadecimal.</comment>
+  </data>
+  <data name="SwitchingToModeE" xml:space="preserve">
+    <value>{0:T}: The connection is switching to Mode E.</value>
+    <comment>{0}: local timestamp. Keep the :T time format and the protocol identifier Mode E.</comment>
+  </data>
+  <data name="TransportClosedDuringResponse" xml:space="preserve">
+    <value>The transport closed while waiting for a meter response.</value>
+  </data>
+  <data name="TransportOpenTimeout" xml:space="preserve">
+    <value>The meter transport did not open within the allowed time.</value>
+  </data>
+  <data name="UaReplyParsed" xml:space="preserve">
+    <value>The UA reply was parsed successfully.</value>
+  </data>
+  <data name="UnknownBaudRate" xml:space="preserve">
+    <value>The meter returned an unsupported IEC 62056-21 baud-rate code.</value>
+  </data>
+  <data name="UnknownInterface" xml:space="preserve">
+    <value>The COSEM interface {0} is not supported.</value>
+    <comment>{0}: technical COSEM object type identifier.</comment>
+  </data>
+  <data name="VerifiedImageMismatch" xml:space="preserve">
+    <value>The meter's verified image identifier or size does not match the supplied image.</value>
+  </data>
+  <data name="WriteAccessDenied" xml:space="preserve">
+    <value>The association does not permit writing {0}, index {1}.</value>
+    <comment>{0}: COSEM logical name; {1}: attribute index.</comment>
+  </data>
+  <data name="MediaInitializersConflict" xml:space="preserve">
+    <value>Configure either InitializeMedia or InitializeMediaAsync, but not both.</value>
+    <comment>InitializeMedia and InitializeMediaAsync are property names and must remain unchanged.</comment>
+  </data>
+  <data name="CertificateServiceResponseInvalid" xml:space="preserve">
+    <value>The certificate service did not return one certificate for each signing request.</value>
+  </data>
+  <data name="CertificateServicePublicKeyMismatch" xml:space="preserve">
+    <value>A certificate returned by the certificate service does not match the public key in its signing request.</value>
+  </data>
+  <data name="CertificateServiceResponseTooLarge" xml:space="preserve">
+    <value>The certificate service response exceeds the configured size limit.</value>
+  </data>
+</root>
