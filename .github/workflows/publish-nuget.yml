@@ -29,7 +29,7 @@ name: Publish Gurux.DLMS.DeviceAccess NuGet package
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - 'Development/**'
       - 'README.md'
@@ -58,7 +58,7 @@ concurrency:
 
 jobs:
   publish:
-    if: github.repository == 'gurux/Gurux.DLMS.DeviceAccess.Net' && github.ref == 'refs/heads/master'
+    if: github.repository == 'gurux/Gurux.DLMS.DeviceAccess.Net' && github.ref == 'refs/heads/main'
     runs-on: windows-latest
     timeout-minutes: 60
     permissions:
