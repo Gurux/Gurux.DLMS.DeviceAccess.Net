@@ -193,7 +193,7 @@ namespace Gurux.DLMS.DeviceAccess
             }
 
             GXReplyData reply = new GXReplyData();
-            await InitializeConnectionAsync().ConfigureAwait(false);
+            await ConnectCoreAsync(null, false, CancellationToken.None).ConfigureAwait(false);
             List<GXCertificateRequest> certifications = new List<GXCertificateRequest>();
             await ReadAsync(securitySetup, 3).ConfigureAwait(false);
             await ReadAsync(securitySetup, 4).ConfigureAwait(false);
@@ -404,7 +404,7 @@ namespace Gurux.DLMS.DeviceAccess
             directory = Path.GetFullPath(directory);
             try
             {
-                await InitializeConnectionAsync().ConfigureAwait(false);
+                await ConnectCoreAsync(null, false, CancellationToken.None).ConfigureAwait(false);
                 await ReadAsync(securitySetup, 3).ConfigureAwait(false);
                 //Client private keys are saved to this directory.
                 //Client might be different system title for each meter.

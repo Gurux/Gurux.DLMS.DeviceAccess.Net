@@ -64,7 +64,7 @@ namespace Gurux.DLMS.DeviceAccess
         {
             try
             {
-                await InitializeConnectionAsync().ConfigureAwait(false);
+                await ConnectCoreAsync(null, false, default).ConfigureAwait(false);
                 if ((await GetAssociationViewAsync(outputFilePath).ConfigureAwait(false)))
                 {
                     await GetScalersAndUnitsAsync().ConfigureAwait(false);

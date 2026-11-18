@@ -528,6 +528,7 @@ namespace Gurux.DLMS.DeviceAccess
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
         /// <remarks>Transport opening and I/O are awaited with cancellation and timeouts. Synchronous entry points block until their asynchronous implementation completes.</remarks>
         public void Connect(GXDLMSConnectOptions? options = null, CancellationToken cancellationToken = default) => ConnectAsync(options, cancellationToken).GetAwaiter().GetResult();
+
         /// <summary>Opens the transport, initializes and authenticates the association, and optionally loads a missing association view.</summary>
         /// <exception cref="ArgumentOutOfRangeException">A connection receive timeout or retry count is not positive, or an optical delay is negative.</exception>
         /// <param name="options">Connection and discovery settings, or null to reuse the previous handshake settings and load a missing association view.</param>
@@ -540,6 +541,7 @@ namespace Gurux.DLMS.DeviceAccess
         /// <remarks>Transport opening and I/O are awaited with cancellation and timeouts. Synchronous entry points block until their asynchronous implementation completes.</remarks>
         /// <returns>A task representing completion of the operation.</returns>
         public async Task ConnectAsync(GXDLMSConnectOptions? options = null, CancellationToken cancellationToken = default) => await ConnectCoreAsync(options, options?.ReadAssociationView ?? true, cancellationToken).ConfigureAwait(false);
+
         /// <summary>Serializes connection setup and retains copied handshake settings for subsequent internal reconnects.</summary>
         /// <param name="options">Handshake settings to copy, or null to preserve the previous settings.</param>
         /// <param name="readAssociationView">Whether to load a missing association view.</param>
@@ -631,27 +633,7 @@ namespace Gurux.DLMS.DeviceAccess
                 await EnsureAssociationViewAsync().ConfigureAwait(false);
             }
         }, cancellationToken, false).ConfigureAwait(false);
-        /// <summary>Establishes the connection using connection-specific timeouts and retries without loading the association view.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">A connection receive timeout or retry count is not positive, or an optical delay is negative.</exception>
-        /// <param name="options">Connection settings to copy, or null to reuse the previous settings, initially the connection defaults. ReadAssociationView is ignored.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
-        /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
-        /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
-        /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
-        /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
-        /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        public void InitializeConnection(GXDLMSConnectOptions? options = null, CancellationToken cancellationToken = default) => InitializeConnectionAsync(options, cancellationToken).GetAwaiter().GetResult();
-        /// <summary>Establishes the connection using connection-specific timeouts and retries without loading the association view.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">A connection receive timeout or retry count is not positive, or an optical delay is negative.</exception>
-        /// <param name="options">Connection settings to copy, or null to reuse the previous settings, initially the connection defaults. ReadAssociationView is ignored.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
-        /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
-        /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
-        /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
-        /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
-        /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <returns>A task representing completion of the operation.</returns>
-        public async Task InitializeConnectionAsync(GXDLMSConnectOptions? options = null, CancellationToken cancellationToken = default) => await ConnectCoreAsync(options, false, cancellationToken).ConfigureAwait(false);
+
         /// <summary>Retrieves the association view when missing or explicitly refreshed and returns the client object collection.</summary>
         /// <param name="forceRefresh">Whether to retrieve the view again even when it is already loaded; also bypasses the XML cache when applicable.</param>
         /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>

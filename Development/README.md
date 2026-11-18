@@ -48,7 +48,10 @@ and by default read a missing association view. Repeated calls reuse a connected
 session. `Connect(new GXDLMSConnectOptions { ReadAssociationView = false })` skips discovery so manually constructed objects can be
 used. An open accepted transport is reused rather than replaced.
 
-`InitializeConnection(options)` performs the handshake without discovery.
+Use `Connect`/`ConnectAsync` for all connection setup. To perform only the
+handshake, pass `new GXDLMSConnectOptions { ReadAssociationView = false }`.
+The former `InitializeConnection` and `InitializeConnectionAsync` methods have
+been removed; update existing calls to `Connect` or `ConnectAsync` with this option.
 `GXDLMSConnectOptions.WaitTime` and `RetryCount` apply while opening and
 authenticating the connection. After setup, including association-view discovery,
 operations use the constructor's `GXDLMSReaderOptions.WaitTime` and `RetryCount`.
