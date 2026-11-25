@@ -77,7 +77,7 @@ namespace Gurux.DLMS.DeviceAccess
         }
         /// <summary>Creates and exchanges custom requests inside the session gate without performing local access-rights checks.</summary>
         /// <param name="createMessages">Request factory invoked synchronously under the asynchronous session gate with the shared client.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
+        /// <param name="cancellationToken">Cancellation observed while acquiring the session gate and at complete response boundaries.</param>
         /// <returns>The reply accumulator containing the final response and decoded value.</returns>
         /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
         /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
@@ -85,12 +85,12 @@ namespace Gurux.DLMS.DeviceAccess
         /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
         /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <remarks>Timeout, I/O failure or cancellation during an exchange invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
+        /// <remarks>Caller cancellation is observed before a request or after its complete response, including continuation blocks. Packet timeouts and operation deadlines remain active. Cancellation, timeout or I/O failure invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
         /// <exception cref="ArgumentNullException">The request factory is null.</exception>
         public GXReplyData Exchange(Func<GXDLMSClient, byte[][]> createMessages, CancellationToken cancellationToken = default) => ExchangeAsync(createMessages, cancellationToken).GetAwaiter().GetResult();
         /// <summary>Creates and exchanges custom requests inside the session gate without performing local access-rights checks.</summary>
         /// <param name="createMessages">Request factory invoked synchronously under the asynchronous session gate with the shared client.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
+        /// <param name="cancellationToken">Cancellation observed while acquiring the session gate and at complete response boundaries.</param>
         /// <returns>A task returning the reply accumulator containing the final response and decoded value.</returns>
         /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
         /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
@@ -98,7 +98,7 @@ namespace Gurux.DLMS.DeviceAccess
         /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
         /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <remarks>Timeout, I/O failure or cancellation during an exchange invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
+        /// <remarks>Caller cancellation is observed before a request or after its complete response, including continuation blocks. Packet timeouts and operation deadlines remain active. Cancellation, timeout or I/O failure invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
         /// <exception cref="ArgumentNullException">The request factory is null.</exception>
         public async Task<GXReplyData> ExchangeAsync(Func<GXDLMSClient, byte[][]> createMessages, CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
@@ -110,25 +110,25 @@ namespace Gurux.DLMS.DeviceAccess
         /// <summary>Exchanges a raw request and parses a complete response frame without requiring an established association or checking local access rights.</summary>
         /// <param name="data">Caller-generated request frame data; null is used when receiving a streaming continuation.</param>
         /// <param name="reply">Reply accumulator populated by the exchange.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
+        /// <param name="cancellationToken">Cancellation observed while acquiring the session gate and at complete response boundaries.</param>
         /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
         /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
         /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
         /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <remarks>Timeout, I/O failure or cancellation during an exchange invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
+        /// <remarks>Caller cancellation is observed before a request or after its complete response, including continuation blocks. Packet timeouts and operation deadlines remain active. Cancellation, timeout or I/O failure invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
         /// <exception cref="ArgumentNullException">The reply accumulator is null.</exception>
         public void ReadDLMSPacket(byte[]? data, GXReplyData reply, CancellationToken cancellationToken = default) => ReadDLMSPacketAsync(data, reply, cancellationToken).GetAwaiter().GetResult();
         /// <summary>Exchanges a raw request and parses a complete response frame without requiring an established association or checking local access rights.</summary>
         /// <param name="data">Caller-generated request frame data; null is used when receiving a streaming continuation.</param>
         /// <param name="reply">Reply accumulator populated by the exchange.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
+        /// <param name="cancellationToken">Cancellation observed while acquiring the session gate and at complete response boundaries.</param>
         /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
         /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
         /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
         /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <remarks>Timeout, I/O failure or cancellation during an exchange invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
+        /// <remarks>Caller cancellation is observed before a request or after its complete response, including continuation blocks. Packet timeouts and operation deadlines remain active. Cancellation, timeout or I/O failure invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
         /// <exception cref="ArgumentNullException">The reply accumulator is null.</exception>
         /// <returns>A task representing completion of the operation.</returns>
         public async Task ReadDLMSPacketAsync(byte[]? data, GXReplyData reply, CancellationToken cancellationToken = default) => await ExecuteAsync(async () => await ReadPacketCoreAsync(data, reply).ConfigureAwait(false), cancellationToken, requireConnection: false).ConfigureAwait(false);
@@ -142,7 +142,37 @@ namespace Gurux.DLMS.DeviceAccess
         /// <exception cref="IOException">The transport is closed or the received frame exceeds 16 MiB.</exception>
         /// <exception cref="GXDLMSException">The meter returns a DLMS error after any rejection retries.</exception>
         /// <returns>A task representing completion of the operation.</returns>
-        private async Task ReadPacketCoreAsync(byte[]? data, GXReplyData reply)
+        private async Task ReadPacketCoreAsync(byte[]? data, GXReplyData reply) => await CompleteResponseAsync(async () => await ReadPacketResponseCoreAsync(data, reply).ConfigureAwait(false)).ConfigureAwait(false);
+
+        /// <summary>Finishes an initiated request and all response blocks before observing caller cancellation; transport timeouts and deadlines remain active.</summary>
+        /// <param name="action">Exchange to run without interrupting a pending meter response.</param>
+        /// <returns>A task completed after the response is consumed.</returns>
+        /// <exception cref="OperationCanceledException">Cancellation is requested before the request or after the complete response.</exception>
+        private async Task CompleteResponseAsync(Func<Task> action)
+        {
+            CancellationToken pending = operationToken;
+            pending.ThrowIfCancellationRequested();
+            operationToken = CancellationToken.None;
+            try
+            {
+                await action().ConfigureAwait(false);
+            }
+            catch (Exception error) when (pending.IsCancellationRequested && (error is IOException || error is TimeoutException))
+            {
+                throw new OperationCanceledException(error.Message, error, pending);
+            }
+            finally
+            {
+                operationToken = pending;
+            }
+            pending.ThrowIfCancellationRequested();
+        }
+
+        /// <summary>Sends a request and consumes a complete response frame, retaining packet timeouts and operation deadlines.</summary>
+        /// <param name="data">Request frame or null for a streaming continuation.</param>
+        /// <param name="reply">Accumulator receiving the response.</param>
+        /// <returns>A task completed when the frame has been parsed.</returns>
+        private async Task ReadPacketResponseCoreAsync(byte[]? data, GXReplyData reply)
         {
             ArgumentNullException.ThrowIfNull(reply);
             operationToken.ThrowIfCancellationRequested();
@@ -296,28 +326,28 @@ namespace Gurux.DLMS.DeviceAccess
         /// <summary>Exchanges raw request frames and follows all response blocks without checking association state or local access rights.</summary>
         /// <param name="data">Caller-generated request frame or frames; null sends no initial request.</param>
         /// <param name="reply">Reply accumulator populated by the exchange.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
+        /// <param name="cancellationToken">Cancellation observed while acquiring the session gate and at complete response boundaries.</param>
         /// <returns>True when the final reply has no DLMS error, including when no request frames were supplied.</returns>
         /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
         /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
         /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
         /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <remarks>Timeout, I/O failure or cancellation during an exchange invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
+        /// <remarks>Caller cancellation is observed before a request or after its complete response, including continuation blocks. Packet timeouts and operation deadlines remain active. Cancellation, timeout or I/O failure invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
         /// <remarks>Caller-generated frames must not be generated concurrently against the shared client because its invoke and block counters are mutable.</remarks>
         /// <exception cref="ArgumentNullException">The reply accumulator is null.</exception>
         public bool ReadDataBlock(byte[][]? data, GXReplyData reply, CancellationToken cancellationToken = default) => ReadDataBlockAsync(data, reply, cancellationToken).GetAwaiter().GetResult();
         /// <summary>Exchanges raw request frames and follows all response blocks without checking association state or local access rights.</summary>
         /// <param name="data">Caller-generated request frame or frames; null sends no initial request.</param>
         /// <param name="reply">Reply accumulator populated by the exchange.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
+        /// <param name="cancellationToken">Cancellation observed while acquiring the session gate and at complete response boundaries.</param>
         /// <returns>A task returning true when the final reply has no DLMS error, including when no request frames were supplied.</returns>
         /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
         /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
         /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
         /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <remarks>Timeout, I/O failure or cancellation during an exchange invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
+        /// <remarks>Caller cancellation is observed before a request or after its complete response, including continuation blocks. Packet timeouts and operation deadlines remain active. Cancellation, timeout or I/O failure invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
         /// <remarks>Caller-generated frames must not be generated concurrently against the shared client because its invoke and block counters are mutable.</remarks>
         /// <exception cref="ArgumentNullException">The reply accumulator is null.</exception>
         public async Task<bool> ReadDataBlockAsync(byte[][]? data, GXReplyData reply, CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
@@ -337,40 +367,43 @@ namespace Gurux.DLMS.DeviceAccess
         /// <summary>Exchanges raw request frames and follows all response blocks without checking association state or local access rights.</summary>
         /// <param name="data">Caller-generated request frame or frames; null sends no initial request.</param>
         /// <param name="reply">Reply accumulator populated by the exchange.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
+        /// <param name="cancellationToken">Cancellation observed while acquiring the session gate and at complete response boundaries.</param>
         /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
         /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
         /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
         /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <remarks>Timeout, I/O failure or cancellation during an exchange invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
+        /// <remarks>Caller cancellation is observed before a request or after its complete response, including continuation blocks. Packet timeouts and operation deadlines remain active. Cancellation, timeout or I/O failure invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
         /// <remarks>Caller-generated frames must not be generated concurrently against the shared client because its invoke and block counters are mutable.</remarks>
         /// <exception cref="ArgumentNullException">The reply accumulator is null.</exception>
         public void ReadDataBlock(byte[]? data, GXReplyData reply, CancellationToken cancellationToken = default) => ReadDataBlockAsync(data, reply, cancellationToken).GetAwaiter().GetResult();
         /// <summary>Exchanges raw request frames and follows all response blocks without checking association state or local access rights.</summary>
         /// <param name="data">Caller-generated request frame or frames; null sends no initial request.</param>
         /// <param name="reply">Reply accumulator populated by the exchange.</param>
-        /// <param name="cancellationToken">Cancellation token observed while acquiring the asynchronous session gate and during supported I/O waits.</param>
+        /// <param name="cancellationToken">Cancellation observed while acquiring the session gate and at complete response boundaries.</param>
         /// <exception cref="OperationCanceledException">Cancellation is requested before or during the operation.</exception>
         /// <exception cref="ObjectDisposedException">The reader has been disposed.</exception>
         /// <exception cref="TimeoutException">Opening or exchanging data exceeds its timeout or active deadline.</exception>
         /// <exception cref="System.IO.IOException">The transport is closed or fails during the exchange.</exception>
         /// <exception cref="GXDLMSException">The meter rejects a DLMS request.</exception>
-        /// <remarks>Timeout, I/O failure or cancellation during an exchange invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
+        /// <remarks>Caller cancellation is observed before a request or after its complete response, including continuation blocks. Packet timeouts and operation deadlines remain active. Cancellation, timeout or I/O failure invalidates the association and closes the transport. Request factories and synchronous callbacks execute while the session gate is held; asynchronous initialization callbacks are awaited under the same gate. No UI synchronization context is guaranteed.</remarks>
         /// <remarks>Caller-generated frames must not be generated concurrently against the shared client because its invoke and block counters are mutable.</remarks>
         /// <exception cref="ArgumentNullException">The reply accumulator is null.</exception>
         /// <returns>A task representing completion of the operation.</returns>
         public async Task ReadDataBlockAsync(byte[]? data, GXReplyData reply, CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
-            using (Media.BeginSynchronous())
+            await CompleteResponseAsync(async () =>
             {
-                await ReadPacketCoreAsync(data, reply).ConfigureAwait(false);
-                while (reply.IsMoreData)
+                using (Media.BeginSynchronous())
                 {
-                    operationToken.ThrowIfCancellationRequested();
-                    await ReadPacketCoreAsync(reply.IsStreaming() ? null : Client.ReceiverReady(reply), reply).ConfigureAwait(false);
+                    await ReadPacketCoreAsync(data, reply).ConfigureAwait(false);
+                    while (reply.IsMoreData)
+                    {
+                        operationToken.ThrowIfCancellationRequested();
+                        await ReadPacketCoreAsync(reply.IsStreaming() ? null : Client.ReceiverReady(reply), reply).ConfigureAwait(false);
+                    }
                 }
-            }
+            }).ConfigureAwait(false);
         }, cancellationToken, requireConnection: false).ConfigureAwait(false);
 
         /// <summary>Encodes an optical command or sends an existing binary frame through the asynchronous transport.</summary>

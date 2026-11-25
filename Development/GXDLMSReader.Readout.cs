@@ -29,6 +29,7 @@ using Gurux.Common;
 using Gurux.DLMS.Enums;
 using Gurux.DLMS.Objects;
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -60,11 +61,13 @@ namespace Gurux.DLMS.DeviceAccess
         /// <exception cref="IOException">The XML output cannot be written.</exception>
         /// <exception cref="UnauthorizedAccessException">Access to the XML output path is denied.</exception>
         /// <returns>A task representing completion of the operation.</returns>
-        public async Task ReadAllAsync(string? outputFilePath, GXXmlWriterSettings? settings = null)
+        /// <param name="cancellationToken">Cancellation observed before requests and after complete responses, including all continuation blocks.</param>
+        /// <exception cref="OperationCanceledException">Cancellation is requested at a response boundary.</exception>
+        public async Task ReadAllAsync(string? outputFilePath, GXXmlWriterSettings? settings = null, CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
             try
             {
-                await ConnectCoreAsync(null, false, default).ConfigureAwait(false);
+                await ConnectCoreAsync(null, false, cancellationToken).ConfigureAwait(false);
                 if ((await GetAssociationViewAsync(outputFilePath).ConfigureAwait(false)))
                 {
                     await GetScalersAndUnitsAsync().ConfigureAwait(false);
@@ -79,9 +82,19 @@ namespace Gurux.DLMS.DeviceAccess
             }
             finally
             {
-                await CloseAsync().ConfigureAwait(false);
+                // Cleanup must not replace the original cancellation with a new gate exception.
+                CancellationToken pending = operationToken;
+                operationToken = CancellationToken.None;
+                try
+                {
+                    await CloseAsync().ConfigureAwait(false);
+                }
+                finally
+                {
+                    operationToken = pending;
+                }
             }
-        }
+        }, cancellationToken, requireConnection: false).ConfigureAwait(false);
 
         /// <summary>
         /// Reads register scaler and unit attributes using negotiated bulk services where possible.
@@ -93,7 +106,9 @@ namespace Gurux.DLMS.DeviceAccess
         /// </summary>
         /// <remarks>Falls back to individual reads when multiple-reference support is unavailable; failures of individual reads are ignored.</remarks>
         /// <returns>A task representing completion of the operation.</returns>
-        public async Task GetScalersAndUnitsAsync()
+        /// <param name="cancellationToken">Cancellation observed before requests and after complete responses, including all continuation blocks.</param>
+        /// <exception cref="OperationCanceledException">Cancellation is requested at a response boundary.</exception>
+        public async Task GetScalersAndUnitsAsync(CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
             GXDLMSObjectCollection objs = Client.Objects.GetObjects(new ObjectType[] { ObjectType.Register, ObjectType.ExtendedRegister, ObjectType.DemandRegister });
             //If trace is info.
@@ -108,6 +123,7 @@ namespace Gurux.DLMS.DeviceAccess
                 List<GXDLMSAccessItem> list = new List<GXDLMSAccessItem>();
                 foreach (GXDLMSObject it in objs)
                 {
+                    operationToken.ThrowIfCancellationRequested();
                     if ((it is GXDLMSRegister || it is GXDLMSExtendedRegister) && Client.CanRead(it, 3))
                     {
                         list.Add(new GXDLMSAccessItem(AccessServiceCommandType.Get, it, 3));
@@ -125,6 +141,7 @@ namespace Gurux.DLMS.DeviceAccess
                 List<KeyValuePair<GXDLMSObject, int>> list = new List<KeyValuePair<GXDLMSObject, int>>();
                 foreach (GXDLMSObject it in objs)
                 {
+                    operationToken.ThrowIfCancellationRequested();
                     if ((it is GXDLMSRegister || it is GXDLMSExtendedRegister) && Client.CanRead(it, 3))
                     {
                         list.Add(new KeyValuePair<GXDLMSObject, int>(it, 3));
@@ -142,7 +159,7 @@ namespace Gurux.DLMS.DeviceAccess
                     {
                         await ReadListAsync(list).ConfigureAwait(false);
                     }
-                    catch (Exception)
+                    catch (Exception error) when (error is not OperationCanceledException)
                     {
                         Client.NegotiatedConformance &= ~Gurux.DLMS.Enums.Conformance.MultipleReferences;
                     }
@@ -154,6 +171,7 @@ namespace Gurux.DLMS.DeviceAccess
                 //Read values one by one.
                 foreach (GXDLMSObject it in objs)
                 {
+                    operationToken.ThrowIfCancellationRequested();
                     try
                     {
                         if (it is GXDLMSRegister && Client.CanRead(it, 3))
@@ -168,13 +186,13 @@ namespace Gurux.DLMS.DeviceAccess
                             await ReadAsync(it, 4).ConfigureAwait(false);
                         }
                     }
-                    catch
+                    catch (Exception error) when (error is not OperationCanceledException)
                     {
                         //Actaric SL7000 can return error here. Continue reading.
                     }
                 }
             }
-        }
+        }, cancellationToken, requireConnection: true).ConfigureAwait(false);
 
         /// <summary>
         /// Reads capture columns for each profile generic and traces their descriptions.
@@ -186,11 +204,14 @@ namespace Gurux.DLMS.DeviceAccess
         /// </summary>
         /// <remarks>Failed profile reads are skipped so remaining profiles can be processed.</remarks>
         /// <returns>A task representing completion of the operation.</returns>
-        public async Task GetProfileGenericColumnsAsync()
+        /// <param name="cancellationToken">Cancellation observed before requests and after complete responses, including all continuation blocks.</param>
+        /// <exception cref="OperationCanceledException">Cancellation is requested at a response boundary.</exception>
+        public async Task GetProfileGenericColumnsAsync(CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
             //Read Profile Generic columns first.
             foreach (GXDLMSProfileGeneric it in Client.Objects.GetObjects(ObjectType.ProfileGeneric))
             {
+                operationToken.ThrowIfCancellationRequested();
                 try
                 {
                     //If info.
@@ -212,6 +233,7 @@ namespace Gurux.DLMS.DeviceAccess
                         bool First = true;
                         foreach (GXDLMSObject col in cols)
                         {
+                            operationToken.ThrowIfCancellationRequested();
                             if (!First)
                             {
                                 sb.Append(" | ");
@@ -226,12 +248,12 @@ namespace Gurux.DLMS.DeviceAccess
                         Log(sb.ToString());
                     }
                 }
-                catch (Exception)
+                catch (Exception error) when (error is not OperationCanceledException)
                 {
                     //Continue reading.
                 }
             }
-        }
+        }, cancellationToken, requireConnection: true).ConfigureAwait(false);
 
         /// <summary>
         /// Traces an attribute value when informational tracing is enabled, formatting byte arrays as hexadecimal.
@@ -312,11 +334,14 @@ namespace Gurux.DLMS.DeviceAccess
         /// <param name="items">Profile objects whose readable entry counts and selectively accessible rows are retrieved.</param>
         /// <remarks>Traces returned rows and logs failures of individual selective reads.</remarks>
         /// <returns>A task representing completion of the operation.</returns>
-        public async Task GetProfileGenericsAsync(IEnumerable<GXDLMSProfileGeneric> items)
+        /// <param name="cancellationToken">Cancellation observed before requests and after complete responses, including all continuation blocks.</param>
+        /// <exception cref="OperationCanceledException">Cancellation is requested at a response boundary.</exception>
+        public async Task GetProfileGenericsAsync(IEnumerable<GXDLMSProfileGeneric> items, CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
             //Find profile generics objects and read them.
             foreach (GXDLMSProfileGeneric it in items)
             {
+                operationToken.ThrowIfCancellationRequested();
                 //If trace is info.
                 if (Trace > TraceLevel.Warning)
                 {
@@ -360,8 +385,10 @@ namespace Gurux.DLMS.DeviceAccess
                             StringBuilder sb = new StringBuilder();
                             foreach (object[] row in rows)
                             {
+                                operationToken.ThrowIfCancellationRequested();
                                 foreach (object cell in row)
                                 {
+                                    operationToken.ThrowIfCancellationRequested();
                                     if (cell is byte[])
                                     {
                                         sb.Append(GXCommon.ToHex((byte[])cell, true));
@@ -380,7 +407,7 @@ namespace Gurux.DLMS.DeviceAccess
                             Log(sb.ToString());
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is not OperationCanceledException)
                     {
                         Log(string.Format(CultureInfo.CurrentCulture, Resources.FirstProfileRowReadFailed, ex.Message));
                         //Continue reading.
@@ -400,8 +427,10 @@ namespace Gurux.DLMS.DeviceAccess
                             StringBuilder sb = new StringBuilder();
                             foreach (object[] row in rows)
                             {
+                                operationToken.ThrowIfCancellationRequested();
                                 foreach (object cell in row)
                                 {
+                                    operationToken.ThrowIfCancellationRequested();
                                     if (cell is byte[])
                                     {
                                         sb.Append(GXCommon.ToHex((byte[])cell, true));
@@ -420,14 +449,14 @@ namespace Gurux.DLMS.DeviceAccess
                             Log(sb.ToString());
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is not OperationCanceledException)
                     {
                         Log(string.Format(CultureInfo.CurrentCulture, Resources.LastDayProfileReadFailed, ex.Message));
                         //Continue reading.
                     }
                 }
             }
-        }
+        }, cancellationToken, requireConnection: true).ConfigureAwait(false);
 
         /// <summary>
         /// Reads compact-data capture definitions, templates, and buffers, then decodes and traces their rows.
@@ -439,7 +468,9 @@ namespace Gurux.DLMS.DeviceAccess
         /// </summary>
         /// <param name="compactData">Compact-data object whose readable capture definition, template, and buffer are retrieved and decoded.</param>
         /// <returns>A task representing completion of the operation.</returns>
-        public async Task GetCompactDataAsync(GXDLMSCompactData compactData)
+        /// <param name="cancellationToken">Cancellation observed before requests and after complete responses, including all continuation blocks.</param>
+        /// <exception cref="OperationCanceledException">Cancellation is requested at a response boundary.</exception>
+        public async Task GetCompactDataAsync(GXDLMSCompactData compactData, CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
             //If trace is info.
             if (Trace > TraceLevel.Warning)
@@ -469,6 +500,7 @@ namespace Gurux.DLMS.DeviceAccess
             List<DataType> types = new List<DataType>();
             foreach (var c in compactData.CaptureObjects)
             {
+                operationToken.ThrowIfCancellationRequested();
                 types.Add(c.Key.GetUIDataType(c.Value.AttributeIndex));
             }
 
@@ -476,6 +508,7 @@ namespace Gurux.DLMS.DeviceAccess
             //Convert cols to readable format.
             foreach (GXStructure row in rows)
             {
+                operationToken.ThrowIfCancellationRequested();
                 for (int col = 0; col != types.Count; ++col)
                 {
                     if (types[col] != DataType.None)
@@ -498,7 +531,7 @@ namespace Gurux.DLMS.DeviceAccess
 
                 Log(row);
             }
-        }
+        }, cancellationToken, requireConnection: true).ConfigureAwait(false);
 
         /// <summary>
         /// Reads and traces readable attributes of supported objects other than profile generics.
@@ -510,10 +543,13 @@ namespace Gurux.DLMS.DeviceAccess
         /// </summary>
         /// <remarks>This demonstration reads broadly across the association. Attribute errors are logged and remaining attributes are processed.</remarks>
         /// <returns>A task representing completion of the operation.</returns>
-        public async Task GetReadOutAsync()
+        /// <param name="cancellationToken">Cancellation observed before requests and after complete responses, including all continuation blocks.</param>
+        /// <exception cref="OperationCanceledException">Cancellation is requested at a response boundary.</exception>
+        public async Task GetReadOutAsync(CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
             foreach (GXDLMSObject it in Client.Objects)
             {
+                operationToken.ThrowIfCancellationRequested();
                 // Profile generics are read later because they are special cases.
                 // (There might be so lots of data and we so not want waste time to read all the data.)
                 if (it is GXDLMSProfileGeneric)
@@ -540,6 +576,7 @@ namespace Gurux.DLMS.DeviceAccess
 
                 foreach (int pos in dlmsObject.GetAttributeIndexToRead(true))
                 {
+                    operationToken.ThrowIfCancellationRequested();
                     try
                     {
                         if (Client.CanRead(it, pos))
@@ -555,14 +592,14 @@ namespace Gurux.DLMS.DeviceAccess
                             Log(string.Format(CultureInfo.CurrentCulture, Resources.AttributeNotReadable, it.GetType().Name, it.Name, pos));
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is not OperationCanceledException)
                     {
                         Log(string.Format(CultureInfo.CurrentCulture, Resources.AttributeReadFailed, it.GetType().Name, it.Name, pos, ex.Message));
                         Log(ex.ToString());
                     }
                 }
             }
-        }
+        }, cancellationToken, requireConnection: true).ConfigureAwait(false);
 
         /// <summary>
         /// Forwards a trace line to each configured subscriber unless tracing is disabled, isolating subscriber exceptions.

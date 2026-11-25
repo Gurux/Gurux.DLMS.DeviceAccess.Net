@@ -56,6 +56,12 @@ been removed; update existing calls to `Connect` or `ConnectAsync` with this opt
 authenticating the connection. After setup, including association-view discovery,
 operations use the constructor's `GXDLMSReaderOptions.WaitTime` and `RetryCount`.
 Connection settings are copied and reused when reconnecting without new options.
+`GXDLMSConnectOptions.HdlcConnectionDelay` defaults to 20 milliseconds before
+each SNRM request, including the public invocation-counter association and the
+secured association that follows it. This gives optical heads and meters time
+to become ready. Set it to zero to disable the wait or supply another
+nonnegative interval. The wait observes cancellation. Interfaces such as WRAPPER
+that do not send SNRM are unaffected.
 Both option classes default to 5000 milliseconds and three rejected-packet attempts.
 
 Call `EnsureAssociationView` or `EnsureAssociationViewAsync` to discover objects
@@ -152,13 +158,23 @@ DisconnectMode, without repeating the activation action. Successful activation
 requires the meter to confirm `ActivationSuccessful` after reconnecting.
 With `Verify = false, Activate = false`, the update performs transfer only.
 
+The readout helpers (`ReadAllAsync`, `GetScalersAndUnitsAsync`,
+`GetProfileGenericColumnsAsync`, `GetProfileGenericsAsync`, `GetCompactDataAsync`
+and `GetReadOutAsync`), as well as `SNRMRequestAsync` and `AarqRequestAsync`, accept
+an optional `CancellationToken`. Readout stops between complete responses;
+individual-read error handling never swallows cancellation.
+
 ## Callbacks and concurrency
 
 Each reader serializes its operations, including request generation and mutable
 DLMS invoke/block counters. Use one reader per client/connection. Cancellation
-is checked while waiting for a response or an operation slot. A canceled or
-incomplete exchange closes the transport so its reply cannot be reused by the
-next operation. The reader requires `IGXAsyncMedia` and awaits transport opening,
+is checked while waiting for an operation slot and before each request. Once an
+exchange starts, its complete response is received before cancellation is reported,
+including fragmented frames and all continuation blocks. Packet timeouts and
+operation deadlines still bound this wait. If cancellation is pending when draining
+fails, OperationCanceledException retains the timeout or I/O failure as its inner
+exception. A canceled or incomplete exchange closes the transport so its reply
+cannot be reused by the next operation. The reader requires `IGXAsyncMedia` and awaits transport opening,
 sending, receiving and closure directly. Synchronous methods call the same async
 implementation and block until it completes. Use async methods in UI applications.
 Buffered receives use `BeginSynchronous()` scopes that remain valid across awaits.

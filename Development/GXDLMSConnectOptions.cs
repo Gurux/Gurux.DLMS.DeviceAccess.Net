@@ -38,6 +38,10 @@ namespace Gurux.DLMS.DeviceAccess
         /// <remarks>Response timeouts are not retried because the meter might already have processed the request.</remarks>
         public int RetryCount { get; set; } = 3;
 
+        /// <summary>Gets or sets the nonnegative readiness delay before each HDLC SNRM request in milliseconds; defaults to 20. Zero disables the delay.</summary>
+        /// <remarks>Allows serial optical heads and meters to become ready after opening or disconnecting a public invocation-counter association. Interfaces that do not send SNRM are unaffected.</remarks>
+        public int HdlcConnectionDelay { get; set; } = 20;
+
         /// <summary>Gets or sets the nonnegative delay before sending the optical identification request in milliseconds; defaults to 1000. Zero disables the delay.</summary>
         public int OpticalHeadInitialDelay { get; set; } = 1000;
 

@@ -50,13 +50,16 @@ namespace Gurux.DLMS.DeviceAccess
         /// Negotiates HDLC link parameters and parses the UA reply when the interface requires SNRM.
         /// </summary>
         /// <returns>A task representing completion of the operation.</returns>
-        public async Task SNRMRequestAsync()
+        /// <param name="cancellationToken">Cancellation observed before requests and after complete responses, including all continuation blocks.</param>
+        /// <exception cref="OperationCanceledException">Cancellation is requested at a response boundary.</exception>
+        public async Task SNRMRequestAsync(CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
             GXReplyData reply = new GXReplyData();
             byte[] data;
             data = Client.SNRMRequest();
             if (data != null)
             {
+                await WaitAsync(connectOptions.HdlcConnectionDelay).ConfigureAwait(false);
                 if (Trace > TraceLevel.Info)
                 {
                     Log(string.Format(CultureInfo.CurrentCulture, Resources.SendingSnrmRequest, GXCommon.ToHex(data, true)));
@@ -75,7 +78,7 @@ namespace Gurux.DLMS.DeviceAccess
                     Log(Resources.UaReplyParsed);
                 }
             }
-        }
+        }, cancellationToken, requireConnection: false).ConfigureAwait(false);
 
         /// <summary>
         /// Sends the application association request, parses its response, and performs high authentication when required.
@@ -85,7 +88,9 @@ namespace Gurux.DLMS.DeviceAccess
         /// Sends the application association request, parses its response, and performs high authentication when required.
         /// </summary>
         /// <returns>A task representing completion of the operation.</returns>
-        public async Task AarqRequestAsync()
+        /// <param name="cancellationToken">Cancellation observed before requests and after complete responses, including all continuation blocks.</param>
+        /// <exception cref="OperationCanceledException">Cancellation is requested at a response boundary.</exception>
+        public async Task AarqRequestAsync(CancellationToken cancellationToken = default) => await ExecuteAsync(async () =>
         {
             GXReplyData reply = new GXReplyData();
             //Generate AARQ request.
@@ -131,7 +136,7 @@ namespace Gurux.DLMS.DeviceAccess
                     Log(Resources.AareReplyParsed);
                 }
             }
-        }
+        }, cancellationToken, requireConnection: false).ConfigureAwait(false);
 
         /// <summary>
         /// Reads the configured invocation counter through an unsecured public association and sets the next ciphering counter.
@@ -147,7 +152,6 @@ namespace Gurux.DLMS.DeviceAccess
                 //Media settings are saved and they are restored when HDLC with mode E is used.
                 string? mediaSettings = Media.Settings;
                 await PrepareMediaAsync().ConfigureAwait(false);
-                byte[] data;
                 GXReplyData reply = new GXReplyData();
                 int add = Client.ClientAddress;
                 int serverAddress = Client.ServerAddress;
@@ -163,27 +167,7 @@ namespace Gurux.DLMS.DeviceAccess
                     Client.Authentication = Authentication.None;
                     Client.Ciphering.Security = Security.None;
                     Client.Ciphering.Signing = Signing.None;
-                    data = Client.SNRMRequest();
-                    if (data != null)
-                    {
-                        if (Trace > TraceLevel.Info)
-                        {
-                            Log(string.Format(CultureInfo.CurrentCulture, Resources.SendingSnrmRequest, GXCommon.ToHex(data, true)));
-                        }
-
-                        await ReadDataBlockAsync(data, reply).ConfigureAwait(false);
-                        if (Trace == TraceLevel.Verbose)
-                        {
-                            Log(string.Format(CultureInfo.CurrentCulture, Resources.ParsingUaReply, reply));
-                        }
-
-                        //Has server accepted client.
-                        Client.ParseUAResponse(reply.Data);
-                        if (Trace > TraceLevel.Info)
-                        {
-                            Log(Resources.UaReplyParsed);
-                        }
-                    }
+                    await SNRMRequestAsync().ConfigureAwait(false);
 
                     //Generate AARQ request.
                     //Split requests to multiple packets if needed.
@@ -559,6 +543,7 @@ namespace Gurux.DLMS.DeviceAccess
             {
                 ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.WaitTime);
                 ArgumentOutOfRangeException.ThrowIfNegativeOrZero(options.RetryCount);
+                ArgumentOutOfRangeException.ThrowIfNegative(options.HdlcConnectionDelay);
                 ArgumentOutOfRangeException.ThrowIfNegative(options.OpticalHeadInitialDelay);
                 ArgumentOutOfRangeException.ThrowIfNegative(options.OpticalHeadSwitchDelay);
                 ArgumentOutOfRangeException.ThrowIfNegative(options.OpticalHeadReadyDelay);
@@ -568,6 +553,7 @@ namespace Gurux.DLMS.DeviceAccess
                 {
                     WaitTime = options.WaitTime,
                     RetryCount = options.RetryCount,
+                    HdlcConnectionDelay = options.HdlcConnectionDelay,
                     OpticalHeadInitialDelay = options.OpticalHeadInitialDelay,
                     OpticalHeadSwitchDelay = options.OpticalHeadSwitchDelay,
                     OpticalHeadReadyDelay = options.OpticalHeadReadyDelay,
