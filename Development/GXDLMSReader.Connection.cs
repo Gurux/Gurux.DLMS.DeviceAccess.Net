@@ -787,7 +787,7 @@ namespace Gurux.DLMS.DeviceAccess
                     {
                         await ReleaseAsync().ConfigureAwait(false);
                     }
-                    catch (GXDLMSException error)
+                    catch (Exception error) when (error is GXDLMSException or GXDLMSExceptionResponse)
                     {
                         Log(string.Format(CultureInfo.CurrentCulture, Resources.ReleaseRejected, error.Message));
                     }

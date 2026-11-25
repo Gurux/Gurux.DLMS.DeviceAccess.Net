@@ -223,6 +223,20 @@ namespace Gurux.DLMS.DeviceAccess
                             throw new IOException(Resources.FrameSizeExceeded);
                         }
 
+                        // An optical head can echo the complete request. In particular, a DISC
+                        // echo can be parsed as a reply when public client/server addresses match.
+                        // Wait for the meter acknowledgement before starting the next association.
+                        if (hdlc && data != null && data.Length != 0 && received.Size >= data.Length
+                            && received.Data.AsSpan(0, data.Length).SequenceEqual(data))
+                        {
+                            received.Position = data.Length;
+                            received.Trim();
+                            if (received.Size == 0)
+                            {
+                                continue;
+                            }
+                        }
+
                         bool complete = Client.GetData(received, reply, notify);
                         if (notify.IsComplete && !notify.IsMoreData)
                         {
